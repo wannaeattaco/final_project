@@ -32,8 +32,8 @@ class Database:
                 return table
         return None
 
-    def __repr__(self):
-        return self.database
+    def str(self):
+        return '\n'.join(map(str, self.database))
 
 
 # add in code for a Table class

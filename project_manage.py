@@ -61,7 +61,6 @@ def exit():
 
 initializing()
 val = login()
-print(val)
 
 # based on the return value for login, activate the code that performs activities according to the role defined for that person_id
 
