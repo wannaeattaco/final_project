@@ -8,19 +8,14 @@ class ReadCsv:
     def __init__(self, file_name):
         self.file_name = file_name
         self.data = []
-        self.read_csv()
-
-    def read_csv(self):
-        __location__ = os.path.realpath(
+        self.__location__ = os.path.realpath(
             os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-        with open(os.path.join(__location__, self.file_name)) as f:
+    def read_csv(self):
+        with open(self.file_name) as f:
             rows = csv.DictReader(f)
             for r in rows:
                 self.data.append(dict(r))
-
-    def __repr__(self):
-        return self.data
 
 
 # add in code for a Database class
@@ -96,14 +91,6 @@ class Table:
     def __str__(self):
         return self.table_name + ':' + str(self.table)
 
-data = ReadCsv('persons.csv')
-table = Table('person', data)
-
-db = Database()
-db.insert(table)
-
-n = db.search('person')
-print(n)
 # modify the code in the Table class so that it supports the insert operation where an entry can be added to a list of dictionary
 
 # modify the code in the Table class so that it supports the update operation where an entry's value associated with a key can be updated
