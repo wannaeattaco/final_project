@@ -17,6 +17,14 @@ class ReadCsv:
             for r in rows:
                 self.data.append(dict(r))
 
+    def update_csv(self, table):
+        file_name = f"{table.table_name}.csv"
+        with open(file_name, "w", newline='') as my_file:
+            writer = csv.writer(my_file)
+            writer.writerow(table.get_schema())
+            for dictionary in table.table:
+                writer.writerow(dictionary.values())
+
 
 # add in code for a Database class
 class Database:
@@ -87,6 +95,12 @@ class Table:
                     dict_temp[key] = item1[key]
             temps.append(dict_temp)
         return temps
+
+    def get_schema(self):
+        if len(self.table) > 0:
+            return list(self.table[0].keys())
+        else:
+            return []
 
     def __str__(self):
         return self.table_name + ':' + str(self.table)
