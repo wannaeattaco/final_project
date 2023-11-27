@@ -48,8 +48,8 @@ def login():
 
 # define a function called exit
 def exit():
-    ReadCsv.update_csv(db.search("persons"), ["ID", "fist", "last", "type"])
-    ReadCsv.update_csv(db.search("login"), ["ID", "username", "password", "role"])
+    ReadCsv.update_csv(db.search("persons"), db.search("persons"))
+    ReadCsv.update_csv(db.search("login"), db.search("login"))
 # here are things to do in this function:
 # write out all the tables that have been modified to the corresponding csv files
 # By now, you know how to read in a csv file and transform it into a list of dictionaries. For this project, you also need to know how to do the reverse, i.e., writing out to a csv file given a list of dictionaries. See the link below for a tutorial on how to do this:
@@ -62,8 +62,7 @@ def exit():
 initializing()
 val = login()
 
-# based on the return value for login, activate the code that performs activities according to the role defined for that person_id
-
+"based on the return value for login, activate the code that performs activities according to the role defined for that person_id"
 # if val[1] = 'admin':
 #     see and do admin related activities
 # elif val[1] = 'student':
