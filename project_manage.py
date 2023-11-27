@@ -65,17 +65,17 @@ val = login()
 # based on the return value for login, activate the code that performs activities according to the role defined for that person_id
 
 # if val[1] = 'admin':
-    # see and do admin related activities
+#     see and do admin related activities
 # elif val[1] = 'student':
-    # see and do student related activities
+#     see and do student related activities
 # elif val[1] = 'member':
-    # see and do member related activities
+#     see and do member related activities
 # elif val[1] = 'lead':
-    # see and do lead related activities
+#     see and do lead related activities
 # elif val[1] = 'faculty':
-    # see and do faculty related activities
+#     see and do faculty related activities
 # elif val[1] = 'advisor':
-    # see and do advisor related activities
+#     see and do advisor related activities
 
 # once every thing is done, make a call to the exit function
 exit()
