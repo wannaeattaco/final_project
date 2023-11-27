@@ -1,14 +1,14 @@
-6 classes are added:
+# 6 classes are added:
 
-1. Student()
+## 1. Student()
 
-Attribute:
+### Attribute:
 
 - student_ID(str)
 - student_first(str)
 - student_last(str)
 
-Method:
+### Method:
 
 - view_request()
 - accept_deny_request()
@@ -16,13 +16,13 @@ Method:
 - view_project()
 - modify_project()
 
-2. Lead(Student)
+## 2. Lead(Student)
 
-Attribute:
+### Attribute:
 
 - info(Student)
 
-Method:
+### Method:
 
 - project_status()
 - request_status()
@@ -30,39 +30,39 @@ Method:
 - send_member_request()
 - send_advisor_request()
 
-3. Member(Student)
+## 3. Member(Student)
 
-Attribute:
+### Attribute:
 
 - info(Student)
 
-Method:
+### Method:
 
 - project_status()
 - request_status()
 
-4. Faculty()
+## 4. Faculty()
 
-Attribute:
+### Attribute:
 
 - faculty_ID(str)
 - faculty_first(str)
 - faculty_last(str)
 
-Method:
+### Method:
 
 - view_request()
 - accept_deny_request()
 - view_project()
 - evaluate_project()
 
-5. Advisor(Faculty)
+## 5. Advisor(Faculty)
 
-Attribute:
+### Attribute:
 
 - info(Faculty)
 
-Method:
+### Method:
 
 - view_project()
 - see_project_request()
@@ -70,25 +70,25 @@ Method:
 - evaluate_project()
 - approve_refuse_project()
 
-6. Admin()
+## 6. Admin()
 
-Attribute:
+### Attribute:
 
 - admin_ID(str)
 - admin_first(str)
 - admin_last(str)
 
-Method:
+### Method:
 
 - update_table()
 - modify_table()
 
 
-3 Tables are added:
+# 3 Tables are added:
 
-1. Project table
+## 1. Project table
 
-Attributes:
+### Attributes:
 - ProjectID
 - Title
 - Lead
@@ -97,17 +97,17 @@ Attributes:
 - Advisor
 - Status
 
-2. Advisor_pending_request table
+## 2. Advisor_pending_request table
 
-Attributes (or keys):
+### Attributes:
 - ProjectID
 - to_be_advisor
 - Response
 - Response_date
 
-3. Member_pending_request table
+## 3. Member_pending_request table
 
-Attributes (or keys):
+### Attributes:
 - ProjectID
 - to_be_member
 - Response
