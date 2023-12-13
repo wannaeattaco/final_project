@@ -10,11 +10,12 @@
 
 ### Method:
 
-- view_request()
-- accept_deny_request()
-- change_into_lead()
-- view_project()
-- modify_project()
+- view_request() --> view member_pending_request.csv
+- accept_deny_request() --> edit member_pending_request.csv
+- change_into_lead() --> edit login.csv
+- view_project() --> view project.csv
+- modify_project() --> edit project.csv
+- create_project() --> add in project.csv
 
 ## 2. Lead(Student)
 
@@ -24,11 +25,10 @@
 
 ### Method:
 
-- project_status()
-- request_status()
-- create_project()
-- send_member_request()
-- send_advisor_request()
+- project_status() --> view project.csv
+- request_status() --> view member_pending_request.csv
+- send_member_request() --> edit member_pending_request.csv
+- send_advisor_request() --> edit advisor_pending_request.csv
 
 ## 3. Member(Student)
 
@@ -38,8 +38,8 @@
 
 ### Method:
 
-- project_status()
-- request_status()
+- project_status() --> view project.csv
+- request_status() --> view member_pending_request.csv
 
 ## 4. Faculty()
 
@@ -51,10 +51,10 @@
 
 ### Method:
 
-- view_request()
-- accept_deny_request()
-- view_project()
-- evaluate_project()
+- view_request() --> view advisor_pending_request.csv
+- accept_deny_request() --> edit advisor_pending_request.csv, person.csv  
+- view_project() --> view project.csv
+- evaluate_project() --> 
 
 ## 5. Advisor(Faculty)
 
@@ -64,7 +64,7 @@
 
 ### Method:
 
-- view_project()
+- view_project() --> view project.csv
 - see_project_request()
 - accept_deny_project()
 - evaluate_project()
