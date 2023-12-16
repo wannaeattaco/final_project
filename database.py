@@ -5,25 +5,24 @@ import copy
 
 
 class ReadCsv:
-    def __init__(self, file_name):
+    def __init__(self, file_name=None):
         self.file_name = file_name
         self.data = []
         self.__location__ = os.path.realpath(
             os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
     def read_csv(self):
-        with open(self.file_name) as f:
+        with open(os.path.join(self.__location__, self.file_name)) as f:
             rows = csv.DictReader(f)
             for r in rows:
                 self.data.append(dict(r))
 
     def update_csv(self, table):
-        file_name = f"{table.table_name}.csv"
+        file_name = os.path.join(self.__location__, f"{table.table_name}.csv")
         with open(file_name, "w", newline='') as my_file:
-            writer = csv.writer(my_file)
-            writer.writerow(table.get_schema())
-            for dictionary in table.table:
-                writer.writerow(dictionary.values())
+            writer = csv.DictWriter(my_file, fieldnames=table.get_schema())
+            writer.writeheader()
+            writer.writerows(table.table)
 
 
 # add in code for a Database class
@@ -49,6 +48,7 @@ class Table:
     def __init__(self, table_name, table):
         self.table_name = table_name
         self.table = table
+        self.readcsv = ReadCsv()
 
     def join(self, other_table, common_key):
         joined_table = Table(self.table_name + '_joins_' + other_table.table_name, [])
@@ -95,6 +95,16 @@ class Table:
                     dict_temp[key] = item1[key]
             temps.append(dict_temp)
         return temps
+
+    def insert(self, data):
+        self.table.append(data)
+        self.readcsv.update_csv(self.table)
+
+    def update(self, identifier_key, identifier_value, update_data):
+        for row in self.table:
+            if row[identifier_key] == identifier_value:
+                row.update(update_data)
+        self.readcsv.update_csv(self)
 
     def get_schema(self):
         if len(self.table) > 0:
