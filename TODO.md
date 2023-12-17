@@ -25,7 +25,6 @@
 
 ### Method:
 
-- project_status() --> view project.csv
 - request_status() --> view member_pending_request.csv
 - send_member_request() --> edit member_pending_request.csv
 - send_advisor_request() --> edit advisor_pending_request.csv
@@ -38,7 +37,6 @@
 
 ### Method:
 
-- project_status() --> view project.csv
 - request_status() --> view member_pending_request.csv
 
 ## 4. Faculty()
