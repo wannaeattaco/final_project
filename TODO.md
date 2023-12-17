@@ -52,7 +52,7 @@
 - view_request() --> view advisor_pending_request.csv
 - accept_deny_request() --> edit advisor_pending_request.csv, person.csv  
 - view_project() --> view project.csv
-- evaluate_project() --> 
+- evaluate_project() --> modify project.csv
 
 ## 5. Advisor(Faculty)
 
@@ -64,7 +64,8 @@
 
 - view_project() --> view project.csv
 - see_project_request()
-- evaluate_project()
+- advisor_evaluate_project()
+- approve_project
 
 ## 6. Admin()
 
