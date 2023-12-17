@@ -64,9 +64,7 @@
 
 - view_project() --> view project.csv
 - see_project_request()
-- accept_deny_project()
 - evaluate_project()
-- approve_refuse_project()
 
 ## 6. Admin()
 
