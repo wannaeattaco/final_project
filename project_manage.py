@@ -96,32 +96,6 @@ def view_project():
             print("Invalid choice. Please try again.")
 
 
-def evaluate_project():
-    project_id = input("Enter the project ID to evaluate: ")
-    evaluation = input("Enter your evaluation of the project: ")
-
-    project_table = db.search('project')
-    project_found = False
-    for project in project_table.table:
-        if project['ProjectID'] == project_id:
-            project_found = True
-            if project['Status'] == 'Submitted' or project['Status'] == 'Approved':
-                project['Evaluation'] = evaluation
-                project['Status'] = 'Scored'
-                project_table.readcsv.update_csv(project_table)
-                print(f"Project {project_id} evaluated. Evaluation: {evaluation}")
-            elif project['Status'] == 'Unfinished':
-                print(f"Project {project_id} is not yet submitted for evaluation.")
-            elif project['Status'] == 'Scored':
-                print(f"Project {project_id} has already been evaluated.")
-            else:
-                print(f"Project {project_id} has an unrecognized status: {project['Status']}")
-            break
-
-    if not project_found:
-        print("Project not found.")
-
-
 class Student:
     def __init__(self, student_id: str, student_first: str, student_last: str):
         self.student_id = student_id
@@ -399,7 +373,7 @@ class Faculty:
             elif choice == '3':
                 view_project()
             elif choice == '4':
-                evaluate_project()
+                self.faculty_evaluate_project()
             elif choice == '5':
                 break
             else:
@@ -458,6 +432,31 @@ class Faculty:
                     break
             project_table.readcsv.update_csv(project_table)
 
+    def faculty_evaluate_project(self):
+        project_id = input("Enter the project ID to evaluate: ")
+        evaluation = input("Enter your evaluation of the project: ")
+
+        project_table = db.search('project')
+        project_found = False
+        for project in project_table.table:
+            if project['ProjectID'] == project_id:
+                project_found = True
+                if project['Status'] == 'Submitted' or project['Status'] == 'Approved':
+                    project['Evaluation from faculty'] = evaluation
+                    project['Status'] = 'Scored'
+                    project_table.readcsv.update_csv(project_table)
+                    print(f"Project {project_id} evaluated. Evaluation: {evaluation}")
+                elif project['Status'] == 'Unfinished':
+                    print(f"Project {project_id} is not yet submitted for evaluation.")
+                elif project['Status'] == 'Scored':
+                    print(f"Project {project_id} has already been evaluated.")
+                else:
+                    print(f"Project {project_id} has an unrecognized status: {project['Status']}")
+                break
+
+        if not project_found:
+            print("Project not found.")
+
 
 class Advisor(Faculty):
     def __init__(self, faculty_id, faculty_first, faculty_last):
@@ -481,7 +480,7 @@ class Advisor(Faculty):
             elif choice == '3':
                 view_project()
             elif choice == '4':
-                evaluate_project()
+                self.advisor_evaluate_project()
             elif choice == '5':
                 self.approve_project()
             elif choice == '6':
@@ -505,6 +504,31 @@ class Advisor(Faculty):
             print(f"Project ID {project_id} has been approved.")
         else:
             print(f"Project ID {project_id} not found.")
+
+    def advisor_evaluate_project(self):
+        project_id = input("Enter the project ID to evaluate: ")
+        evaluation = input("Enter your evaluation of the project: ")
+
+        project_table = db.search('project')
+        project_found = False
+        for project in project_table.table:
+            if project['ProjectID'] == project_id:
+                project_found = True
+                if project['Status'] == 'Submitted' or project['Status'] == 'Approved':
+                    project['Evaluation from advisor'] = evaluation
+                    project['Status'] = 'Scored'
+                    project_table.readcsv.update_csv(project_table)
+                    print(f"Project {project_id} evaluated. Evaluation: {evaluation}")
+                elif project['Status'] == 'Unfinished':
+                    print(f"Project {project_id} is not yet submitted for evaluation.")
+                elif project['Status'] == 'Scored':
+                    print(f"Project {project_id} has already been evaluated.")
+                else:
+                    print(f"Project {project_id} has an unrecognized status: {project['Status']}")
+                break
+
+        if not project_found:
+            print("Project not found.")
 
 
 class Admin:
