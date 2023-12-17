@@ -61,86 +61,137 @@ class Student:
     def perform_student_action(self):
         while True:
             print("1. View Project Details")
-            print("2. Modify Project Details")
-            print("3. Create project")
-            print("4. View Member Requests")
-            print("5. Accept/Deny member request")
-            print("6. Exit")
+            print("2. Create project")
+            print("3. View Member Requests")
+            print("4. Accept/Deny member request")
+            print("5. Exit")
 
             choice = input("Enter your choice: ")
 
             if choice == '1':
                 self.view_project()
             elif choice == '2':
-                project_id = input("Please enter the project ID that you want to verify: ")
-                new_title = input("Enter the new project title: ")
-                new_lead = input("Enter new leader name:")
-                self.modify_project(project_id, new_title, new_lead)
+                self.create_project()
+                self.change_into_lead()
             elif choice == '3':
-                title = input("Enter the project title: ")
-                lead = input("Enter leader ID:")
-                self.create_project(title, lead)
-            elif choice == '4':
-                self.view_project()
-            elif choice == '5':
                 self.view_request()
-            elif choice == '6':
+            elif choice == '4':
+                project_id = input("Enter the project ID for which you received an invitation: ")
+                self.accept_deny_request(project_id)
+                self.update_project_member(project_id)
+            elif choice == '5':
                 break
             else:
                 print("Invalid choice. Please enter a number between 1 and 5.")
 
     def view_request(self):
-        request = db.search('member_pending')
-        request_data = request.table.filter(lambda x: x['ID'] == self.student_id)
-        print(request_data)
+        request_table = db.search('member_pending_request')
+        if request_table:
+            request_data = [req for req in request_table.table if req['to_be_member'] == self.student_id]
 
-    def accept_deny_request(self):
-        request_table = db.search('member_pending')
+            if request_data:
+                for req in request_data:
+                    print(req)
+            else:
+                print("No pending requests found.")
+        else:
+            print("Member pending request table not found.")
+
+    def accept_deny_request(self, project_id):
+        request_table = db.search('member_pending_request')
         project_table = db.search('project')
+        persons_table = db.search('persons')
+        login_table = db.search('login')
 
-        project_id = input("Enter the project ID for which you received an invitation: ")
         response = input("Do you want to accept the project invitation? (yes or no): ")
 
+        # Update the request table
+        updated_requests = []
         for request in request_table.table:
             if request['ProjectID'] == project_id:
                 request['Response'] = response
-                request_table.readcsv.update_csv(request_table)
-                break
+                if response.lower() == 'yes':
+                    # Process only if response is 'yes'
+                    continue
+            updated_requests.append(request)
+        request_table.table = updated_requests
+        request_table.readcsv.update_csv(request_table)
 
+        # Update project, persons, and login tables if the response is 'yes'
+        if response.lower() == 'yes':
+            # Update project table
+            for project in project_table.table:
+                if project['ProjectID'] == project_id:
+                    if not project['Member1'] or project['Member1'].strip() == '':
+                        project['Member1'] = self.student_id
+                    elif not project['Member2'] or project['Member2'].strip() == '':
+                        project['Member2'] = self.student_id
+                    break
+            project_table.readcsv.update_csv(project_table)
+
+            # Update persons table
+            for person in persons_table.table:
+                if person['ID'] == self.student_id:
+                    person['type'] = 'member'
+                    break
+            persons_table.readcsv.update_csv(persons_table)
+
+            # Update login table
+            for login in login_table.table:
+                if login['ID'] == self.student_id:
+                    login['role'] = 'member'
+                    break
+            login_table.readcsv.update_csv(login_table)
+
+    def update_project_member(self, project_id):
+        project_table = db.search('project')
         project_found = False
         for project in project_table.table:
             if project['ProjectID'] == project_id:
                 project_found = True
-                print(f"Project Title: {project['Title']}")
-                if response.lower() == 'yes':
-                    if project['Member1'] is None or project['Member1'] == '':
-                        project['Member1'] = self.student_id
-                    else:
-                        project['Member2'] = self.student_id
+                if project['Member1'] in (None, '', 'N/A'):
+                    project['Member1'] = self.student_id
+                elif project['Member2'] in (None, '', 'N/A'):
+                    project['Member2'] = self.student_id
+                else:
+                    print("No available member slots in the project.")
+                    return
                 project_table.readcsv.update_csv(project_table)
+                print(f"Joined project: {project['Title']}")
                 break
+
+        if not project_found:
+            print("Project not found.")
+
+        if not project_found:
+            print("Project not found.")
 
         if not project_found:
             print("Project not found.")
 
     def change_into_lead(self):
         persons_table = db.search('persons')
-        persons_table.update({'ID': self.student_id}, {'role': 'lead'})
+        login_table = db.search('login')
+        search_criteria = {'ID': self.student_id}
+        update_data_login = {'role': 'lead'}
+        update_data_person = {'type': 'lead'}
+        persons_table.update(search_criteria, update_data_person)
+        login_table.update(search_criteria, update_data_login)
 
     def view_project(self):
         project_table = db.search('project')
         while True:
             choice = input("Which project you want to view (view all(a), by project name(n)), exit(e): ")
             if choice.lower() == 'a':
-                for project in project_table:
-                    project(f"Project number {project}")
+                print("Show all projects:")
+                for project in project_table.table:
                     print(f"Project ID: {project['ProjectID']}")
                     print(f"Title: {project['Title']}")
                     print(f"Lead: {project['Lead']}")
-                    print(f"Member no.1 {project['Member1']}")
-                    print(f"Member no.2 {project['Member2']}")
+                    print(f"Member no.1: {project['Member1']}")
+                    print(f"Member no.2: {project['Member2']}")
                     print(f"Advisor: {project['Advisor']}")
-                    print(f"Status: {project['Status']}")
+                    print(f"Status: {project['Status']}\n")
             elif choice.lower() == 'n':
                 name = input("Enter project name: ")
                 project_found = False
@@ -160,16 +211,39 @@ class Student:
             elif choice.lower() == 'e':
                 break
             else:
-                print("Which project you want to view (view all(a), by project name(n)), exit(e): ")
+                print("Invalid choice. Please try again.")
 
-    def modify_project(self, project_id, new_title="", new_lead=""):
+    def modify_project(self, project_id, new_title=""):
         project_table = db.search('project')
-        project_table.update({'ProjectID': project_id, 'Title': new_title, 'Lead': new_lead})
+        if project_table:
+            search_criteria = {'ProjectID': project_id}
+            update_data = {}
+            if new_title:
+                update_data['Title'] = new_title
+            if update_data:
+                project_table.update(search_criteria, update_data)
+            else:
+                print("No updates provided.")
+        else:
+            print("Project table not found.")
 
-    def create_project(self, title, lead, project_id=random.randrange(000, 999), member1="", member2="", advisor="", status=""):
+    def create_project(self, project_id=None, member1="N/A", member2="N/A", advisor="N/A"):
+        title = input("Enter the project title: ")
+        lead = input("Enter leader ID:")
+        if project_id is None:
+            project_id = random.randrange(0, 999)
+
         project_table = db.search('project')
-        project_table.insert({'ProjectID': project_id, 'Title': title,
-                              'Lead': lead, 'Member1': member1, 'Member2': member2, 'Advisor': advisor, 'Status': status})
+        new_project = {
+            'ProjectID': project_id,
+            'Title': title,
+            'Lead': lead,
+            'Member1': member1,
+            'Member2': member2,
+            'Advisor': advisor,
+            'Status': "Unfinished"
+        }
+        project_table.insert(new_project)
 
 
 class Lead(Student):
@@ -181,56 +255,69 @@ class Lead(Student):
         while True:
             print("1. View Project Details")
             print("2. Modify Project Details")
-            print("3. Create project")
-            print("4. View Member Requests")
-            print("5. Accept/Deny member request")
-            print("6. View member request")
-            print("7.Send member invitation")
-            print("8. Send advisor request")
-            print("9. Exit")
+            print("3. View Member Requests")
+            print("4. Send member invitation")
+            print("5. Send advisor request")
+            print("6. Summit project")
+            print("7. Exit")
 
             choice = input("Enter your choice: ")
 
             if choice == '1':
                 self.view_project()
             elif choice == '2':
-                project_id = input("Please enter the project ID that you want to verify: ")
                 new_title = input("Enter the new project title: ")
-                new_lead = input("Enter new leader name:")
-                self.modify_project(project_id, new_title, new_lead)
+                self.modify_project(self.project_id, new_title)
             elif choice == '3':
-                title = input("Enter the project title: ")
-                lead = input("Enter leader ID:")
-                self.create_project(title, lead)
+                self.view_all_request()
             elif choice == '4':
-                self.view_project()
+                self.send_member_request()
             elif choice == '5':
-                self.view_request()
+                self.send_advisor_request()
             elif choice == '6':
-                self.view_request()
+                self.summit_project()
             elif choice == '7':
-                member_id = input("Enter member ID that you want to send member invitation with: ")
-                self.send_member_request(member_id)
-            elif choice == '8':
-                advisor_id = input("Enter advisor ID that you want to send advisor request with: ")
-                self.send_advisor_request(advisor_id)
-            elif choice == '9':
                 break
             else:
-                print("Invalid choice. Please enter a number between 1 and 5.")
+                print("Invalid choice. Please enter a number between 1 and 7.")
 
-    def view_request(self):
-        request = db.search('member_pending')
-        request_data = request.table.filter(lambda x: x['ID'] == self.student_id)
-        print(request_data)
+    def send_member_request(self):
+        member_id = input("Enter member ID that you want to send member invitation with: ")
+        member_request_table = db.search('member_pending_request')
+        if member_request_table:
+            member_request_table.insert({'ProjectID': self.project_id, 'to_be_member': member_id})
+        else:
+            print("Member pending request table not found.")
 
-    def send_member_request(self, member_id):
-        member_request_table = db.search('member_pending')
-        member_request_table.insert({'ProjectID': self.project_id, 'to_be_member': member_id})
+    def view_all_request(self):
+        request_table = db.search('member_pending_request')
+        for request in request_table.table:
+            print(f"Project ID: {request['ProjectID']}, Member ID: {request['to_be_member']}")
 
-    def send_advisor_request(self, advisor_id):
-        member_request_table = db.search('member_pending')
-        member_request_table.insert({'ProjectID': self.project_id, 'to_be_member': advisor_id})
+    def send_advisor_request(self):
+        advisor_id = input("Enter advisor ID that you want to send advisor request with: ")
+        advisor_request_table = db.search('advisor_pending_request')
+        if advisor_request_table:
+            advisor_request_table.insert({'ProjectID': self.project_id, 'to_be_member': advisor_id})
+        else:
+            print("Advisor pending request table not found.")
+
+    def summit_project(self):
+        project_table = db.search('project')
+        project_found = False
+        for project in project_table.table:
+            if project['ProjectID'] == self.project_id:
+                project_found = True
+                if project['Status'] == 'Unfinished':
+                    project['Status'] = 'Submitted'
+                    project_table.readcsv.update_csv(project_table)
+                    print(f"Project '{project['Title']}' has been submitted.")
+                else:
+                    print(f"Project '{project['Title']}' cannot be submitted. Current status: {project['Status']}")
+                break
+
+        if not project_found:
+            print("Project not found or not associated with the current lead.")
 
 
 class Member(Student):
@@ -241,41 +328,23 @@ class Member(Student):
         while True:
             print("1. View Project Details")
             print("2. Modify Project Details")
-            print("3. Create project")
-            print("4. View Member Requests")
-            print("5. Accept/Deny member request")
-            print("6. View member request")
-            print("7. Exit")
+            print("3. View Member Requests")
+            print("4. Exit")
 
             choice = input("Enter your choice: ")
 
             if choice == '1':
                 self.view_project()
             elif choice == '2':
-                project_id = input("Please enter the project ID that you want to verify: ")
+                project_id = input("Please enter the project ID that you want to modify: ")
                 new_title = input("Enter the new project title: ")
-                new_lead = input("Enter new leader name:")
-                self.modify_project(project_id, new_title, new_lead)
+                self.modify_project(project_id, new_title)
             elif choice == '3':
-                title = input("Enter the project title: ")
-                lead = input("Enter leader ID:")
-                self.create_project(title, lead)
+                self.view_request()
             elif choice == '4':
-                self.view_project()
-            elif choice == '5':
-                self.view_request()
-            elif choice == '6':
-                self.view_request()
-            elif choice == '7':
                 break
             else:
                 print("Invalid choice. Please enter a number between 1 and 5.")
-
-    def request_status(self):
-        request_table = db.search('member_pending')
-        for request in request_table.table:
-            if request['to_be_member'] == self.student_id:
-                print(request)
 
 
 class Faculty:
@@ -286,7 +355,7 @@ class Faculty:
 
     def perform_faculty_action(self):
         while True:
-            print("\n1. View Request")
+            print("1. View Request")
             print("2. Accept/Deny Request")
             print("3. View Project")
             print("4. Evaluate Project")
@@ -308,20 +377,49 @@ class Faculty:
                 print("Invalid choice. Please try again.")
 
     def view_request(self):
-        request = db.search('advisor_pending')
+        request = db.search('advisor_pending_request')
         request_data = request.table.filter(lambda x: x['ID'] == self.faculty_id)
         print(request_data)
 
     def accept_deny_request(self):
-        request_table = db.search('member_pending')
+        request_table = db.search('advisor_pending_request')
         project_table = db.search('project')
-        project_id = request_table['ID']
-        response = input("Do you want to accept project invitation? (yes or no):")
-        request_table.update({'ProjectID': project_id}, {'Response': response})
-        project_table.update({'ProjectID': project_id}, {'Member1': self.faculty_id})
+        persons_table = db.search('persons')
+        login_table = db.search('login')
+
+        project_id = input("Enter the project ID for which you received an invitation: ")
+        response = input("Do you want to accept the project invitation? (yes or no): ")
+
+        updated_requests = []
+        for request in request_table.table:
+            if request['ProjectID'] == project_id:
+                request['Response'] = response
+                if response.lower() == 'yes':
+                    continue
+            updated_requests.append(request)
+        request_table.table = updated_requests
+        request_table.readcsv.update_csv(request_table)
+
+        if response.lower() == 'yes':
+            for project in project_table.table:
+                if project['ProjectID'] == project_id:
+                    project['Advisor'] = self.faculty_id
+                    break
+            project_table.readcsv.update_csv(project_table)
+
+            for person_in in persons_table.table:
+                if person_in['ID'] == self.faculty_id:
+                    person_in['type'] = 'advisor'
+                    break
+            persons_table.readcsv.update_csv(persons_table)
+            for login_info in login_table.table:
+                if login_info['ID'] == self.faculty_id:
+                    login_info['role'] = 'advisor'
+                    break
+            login_table.readcsv.update_csv(login_table)
 
     def view_project(self):
-        request = db.search('member_pending')
+        request = db.search('project_request')
         request_data = request.table.filter(lambda x: x['ID'] == self.faculty_id)
         print(request_data)
 
@@ -330,12 +428,25 @@ class Faculty:
         evaluation = input("Enter your evaluation of the project: ")
 
         project_table = db.search('project')
+        project_found = False
         for project in project_table.table:
             if project['ProjectID'] == project_id:
-                project['Evaluation'] = evaluation
-                project_table.readcsv.update_csv(project_table)
-                print(f"Project {project_id} evaluated. Evaluation: {evaluation}")
+                project_found = True
+                if project['Status'] == 'Submitted':
+                    project['Evaluation'] = evaluation
+                    project['Status'] = 'Scored'
+                    project_table.readcsv.update_csv(project_table)
+                    print(f"Project {project_id} evaluated. Evaluation: {evaluation}")
+                elif project['Status'] == 'Unfinished':
+                    print(f"Project {project_id} is not yet submitted for evaluation.")
+                elif project['Status'] == 'Scored':
+                    print(f"Project {project_id} has already been evaluated.")
+                else:
+                    print(f"Project {project_id} has an unrecognized status: {project['Status']}")
                 break
+
+        if not project_found:
+            print("Project not found.")
 
 
 class Advisor(Faculty):
@@ -345,14 +456,12 @@ class Advisor(Faculty):
     def perform_advisor_action(self):
 
         while True:
-            print("\n1. View Request")
+            print("1. View Request")
             print("2. Accept/Deny Request")
-            print("3. View Project")
+            print("3. Approve project")
             print("4. Evaluate Project")
             print("5. View Project Request")
-            print("6. Accept/Deny Project")
-            print("7. Approve/Refuse Project")
-            print("8. Exit")
+            print("6. Exit")
 
             choice = input("Enter your choice: ")
             if choice == '1':
@@ -366,54 +475,9 @@ class Advisor(Faculty):
             elif choice == '5':
                 self.view_project_request()
             elif choice == '6':
-                self.accept_deny_project()
-            elif choice == '7':
-                self.approve_refuse_project()
-            elif choice == '8':
                 break
             else:
                 print("Invalid choice. Please try again.")
-
-    def view_project_request(self):
-        project_request_table = db.search('project_pending_request')
-        for request in project_request_table.table:
-            print(f"Project ID: {request['ProjectID']}, Request: {request['to_be_advisor']}, Status: {request['Response']}")
-
-    def accept_deny_project(self):
-        project_id = input("Enter the project ID to respond to: ")
-        response = input("Accept or Deny the project request? (accept/deny): ")
-
-        project_request_table = db.search('project_pending_request')
-        for request in project_request_table.table:
-            if request['ProjectID'] == project_id:
-                request['Response'] = response
-                project_request_table.readcsv.update_csv(project_request_table)
-                print(f"Project request for {project_id} has been {response}.")
-                break
-
-    def evaluate_project(self):
-        project_id = input("Enter the project ID to evaluate: ")
-        evaluation = input("Enter your evaluation of the project: ")
-
-        project_table = db.search('project')
-        for project in project_table.table:
-            if project['ProjectID'] == project_id:
-                project['Evaluation'] = evaluation
-                project_table.readcsv.update_csv(project_table)
-                print(f"Project {project_id} evaluated. Evaluation: {evaluation}")
-                break
-
-    def approve_refuse_project(self):
-        project_id = input("Enter the project ID to approve or refuse: ")
-        decision = input("Approve or Refuse the project? (approve/refuse): ")
-
-        project_table = db.search('project')
-        for project in project_table.table:
-            if project['ProjectID'] == project_id:
-                project['Status'] = 'Approved' if decision.lower() == 'approve' else 'Refused'
-                project_table.readcsv.update_csv(project_table)
-                print(f"Project {project_id} has been {decision}.")
-                break
 
 
 class Admin:
@@ -482,22 +546,28 @@ if val:
     info = next((i for i in person_info.table if i['ID'] == val[0]), None)
     if info:
         if val[1] == 'admin':
+            print("You log in as admin")
             person = Admin(info['ID'], info['first'], info['last'])
             person.perform_admin_action()
         elif val[1] == 'student':
+            print("You log in as student")
             person = Student(info['ID'], info['first'], info['last'])
             person.perform_student_action()
         elif val[1] == 'member':
+            print("You log in as member")
             person = Member(info['ID'], info['first'], info['last'])
             person.perform_member_action()
         elif val[1] == 'lead':
+            print("You log in as lead")
             input_project = input("Enter your project ID: ")
             person = Lead(info['ID'], info['first'], info['last'], input_project)
             person.perform_lead_action()
         elif val[1] == 'faculty':
+            print("You log in as faculty")
             person = Faculty(info['ID'], info['first'], info['last'])
             person.perform_faculty_action()
         elif val[1] == 'advisor':
+            print("You log in as advisor")
             person = Advisor(info['ID'], info['first'], info['last'])
             person.perform_advisor_action()
 
