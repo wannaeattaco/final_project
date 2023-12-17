@@ -20,7 +20,8 @@ class ReadCsv:
     def update_csv(self, table):
         file_name = os.path.join(self.__location__, f"{table.table_name}.csv")
         with open(file_name, "w", newline='') as my_file:
-            writer = csv.DictWriter(my_file, fieldnames=table.get_schema())
+            fieldnames = set().union(*(d.keys() for d in table.table))
+            writer = csv.DictWriter(my_file, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(table.table)
 
@@ -98,11 +99,11 @@ class Table:
 
     def insert(self, data):
         self.table.append(data)
-        self.readcsv.update_csv(self.table)
+        self.readcsv.update_csv(self)
 
-    def update(self, identifier_key, identifier_value, update_data):
+    def update(self, search_criteria, update_data, extra_argument=None):
         for row in self.table:
-            if row[identifier_key] == identifier_value:
+            if all(row[key] == value for key, value in search_criteria.items()):
                 row.update(update_data)
         self.readcsv.update_csv(self)
 
