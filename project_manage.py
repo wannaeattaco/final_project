@@ -562,27 +562,50 @@ class Admin:
             update_data_str = input("Enter the update data in key:value format, separated by commas: ")
 
             update_data_pairs = update_data_str.split(',')
-            update_dict = {k.strip(): v.strip() for k, v in (pair.split(':') for pair in update_data_pairs)}
+            update_dict = {}
+            for pair in update_data_pairs:
+                parts = pair.split(':')
+                if len(parts) == 2:
+                    key, value = parts
+                    update_dict[key.strip()] = value.strip()
+                else:
+                    print(f"Invalid format in pair: '{pair}'. Please use key:value format.")
+                    return
+
             table.update({identifier_key: identifier_value}, update_dict)
+        else:
+            print(f"Table '{table_name}' not found.")
 
     def modify_table(self):
-        table_name = input("Enter the table name that you want to modify(persons, login, advisor_pending_request, "
-                           "member_pending_request, project):  ")
+        table_name = input("Enter the table name that you want to modify (persons, login, advisor_pending_request, "
+                           "member_pending_request, project): ")
         table = db.search(table_name)
         if table:
             action = input("Do you want to add or remove a record? (add/remove): ")
+
             if action == "add":
                 new_record = input("Enter new record data in key:value format, separated by commas: ")
-
                 new_record_pairs = new_record.split(',')
-                new_record_dict = {pair.split(':')[0].strip(): pair.split(':')[1].strip() for pair in new_record_pairs}
+
+                new_record_dict = {}
+                for pair in new_record_pairs:
+                    parts = pair.split(':')
+                    if len(parts) == 2:
+                        key, value = parts
+                        new_record_dict[key.strip()] = value.strip()
+                    else:
+                        print(f"Invalid format in pair: '{pair}'. Please use key:value format.")
+                        return
 
                 table.insert(new_record_dict)
             elif action == "remove":
                 identifier_key = input("Enter the identifier key: ")
                 identifier_value = input("Enter the identifier value: ")
-
                 table.remove(identifier_key, identifier_value)
+            else:
+                print("Invalid action. Please enter 'add' or 'remove'.")
+        else:
+            print(f"Table '{table_name}' not found.")
 
 
 # make calls to the initializing and login functions defined above
