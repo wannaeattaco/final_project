@@ -621,7 +621,7 @@ if val:
     if info:
         if val[1] == 'admin':
             print("You log in as admin")
-            print("The available feature for student: ")
+            print("The available feature for admin: ")
             person = Admin(info['ID'], info['first'], info['last'])
             person.perform_admin_action()
         elif val[1] == 'student':
