@@ -46,4 +46,7 @@ Role       | Action                                            | Method         
 - Admin    | Update Table                                      | update_table()             | Admin    | 100%
 - Admin    | Modify Table                                      | modify_table()             | Admin    | 100%
 
+### Missing feature
+
+Evaluation of project not complete to use bcause the function is not in the same function
 
