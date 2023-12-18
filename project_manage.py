@@ -232,7 +232,7 @@ class Student:
 
     def create_project(self, project_id=None, member1="N/A", member2="N/A", advisor="N/A"):
         title = input("Enter the project title: ")
-        lead = input("Enter leader ID:")
+        lead = input("Enter leader ID: ")
         if project_id is None:
             project_id = random.randrange(0, 999)
 
@@ -261,7 +261,7 @@ class Lead(Student):
             print("3. View Member Requests")
             print("4. Send member invitation")
             print("5. Send advisor request")
-            print("6. Summit project")
+            print("6. Submit project")
             print("7. Exit")
 
             choice = input("Enter your choice: ")
@@ -278,7 +278,7 @@ class Lead(Student):
             elif choice == '5':
                 self.send_advisor_request()
             elif choice == '6':
-                self.summit_project()
+                self.submit_project()
             elif choice == '7':
                 break
             else:
@@ -305,7 +305,7 @@ class Lead(Student):
         else:
             print("Advisor pending request table not found.")
 
-    def summit_project(self):
+    def submit_project(self):
         project_table = db.search('project')
         project_found = False
         for project in project_table.table:
@@ -539,7 +539,7 @@ class Admin:
 
     def perform_admin_action(self):
         while True:
-            print("\n1. Update Table")
+            print("1. Update Table")
             print("2. Modify Table")
             print("3. Exit")
 
@@ -598,27 +598,33 @@ if val:
     if info:
         if val[1] == 'admin':
             print("You log in as admin")
+            print("The available feature for student: ")
             person = Admin(info['ID'], info['first'], info['last'])
             person.perform_admin_action()
         elif val[1] == 'student':
             print("You log in as student")
+            print("The available feature for student: ")
             person = Student(info['ID'], info['first'], info['last'])
             person.perform_student_action()
         elif val[1] == 'member':
             print("You log in as member")
+            print("The available feature for member: ")
             person = Member(info['ID'], info['first'], info['last'])
             person.perform_member_action()
         elif val[1] == 'lead':
             print("You log in as lead student")
+            print("The available feature for lead student: ")
             input_project = input("Enter your project ID: ")
             person = Lead(info['ID'], info['first'], info['last'], input_project)
             person.perform_lead_action()
         elif val[1] == 'faculty':
             print("You log in as faculty")
+            print("The available feature for faculty: ")
             person = Faculty(info['ID'], info['first'], info['last'])
             person.perform_faculty_action()
         elif val[1] == 'advisor':
             print("You log in as advisor")
+            print("The available feature for advisor: ")
             person = Advisor(info['ID'], info['first'], info['last'])
             person.perform_advisor_action()
 
