@@ -553,13 +553,13 @@ class Admin:
                 print("Invalid choice. Please try again.")
 
     def update_table(self):
-        table_name = input("Enter the table name that you want to update (persons, login, advisor_pending_request, "
+        table_name = input("Enter table name (persons, login, advisor_pending_request, "
                            "member_pending_request, project): ")
         table = db.search(table_name)
         if table:
-            identifier_key = input("Enter the identifier key: ")
-            identifier_value = input("Enter the identifier value: ")
-            update_data_str = input("Enter the update data in key:value format, separated by commas: ")
+            identifier_key = input("Enter the key to identify the record ('ID'): ")
+            identifier_value = input(f"Enter the value for '{identifier_key}' to find the record: ")
+            update_data_str = input("Enter data to update in 'key:value' format ('name:John, age:30'): ")
 
             update_data_pairs = update_data_str.split(',')
             update_dict = {}
@@ -569,7 +569,7 @@ class Admin:
                     key, value = parts
                     update_dict[key.strip()] = value.strip()
                 else:
-                    print(f"Invalid format in pair: '{pair}'. Please use key:value format.")
+                    print(f"Invalid format: '{pair}'. Expected format: 'key:value'.")
                     return
 
             table.update({identifier_key: identifier_value}, update_dict)
@@ -577,14 +577,14 @@ class Admin:
             print(f"Table '{table_name}' not found.")
 
     def modify_table(self):
-        table_name = input("Enter the table name that you want to modify (persons, login, advisor_pending_request, "
+        table_name = input("Enter table name (persons, login, advisor_pending_request, "
                            "member_pending_request, project): ")
         table = db.search(table_name)
         if table:
-            action = input("Do you want to add or remove a record? (add/remove): ")
+            action = input("Choose action (type 'add' or 'remove'): ")
 
             if action == "add":
-                new_record = input("Enter new record data in key:value format, separated by commas: ")
+                new_record = input("Enter new record data in 'key:value' format ('ID:123, name:John'): ")
                 new_record_pairs = new_record.split(',')
 
                 new_record_dict = {}
@@ -594,13 +594,13 @@ class Admin:
                         key, value = parts
                         new_record_dict[key.strip()] = value.strip()
                     else:
-                        print(f"Invalid format in pair: '{pair}'. Please use key:value format.")
+                        print(f"Invalid format: '{pair}'. Expected format: 'key:value'.")
                         return
 
                 table.insert(new_record_dict)
             elif action == "remove":
-                identifier_key = input("Enter the identifier key: ")
-                identifier_value = input("Enter the identifier value: ")
+                identifier_key = input("Enter the key to identify the record (e.g., 'ID'): ")
+                identifier_value = input(f"Enter the value for '{identifier_key}' to remove the record: ")
                 table.remove(identifier_key, identifier_value)
             else:
                 print("Invalid action. Please enter 'add' or 'remove'.")
