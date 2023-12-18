@@ -27,7 +27,7 @@ Role       | Action                                            | Method         
 - Student  | Update member name in project                     | update_project_member()    | Student  | 100%
 - Lead     | Change project detail                             | modify_project()           | Student  | 100%
 - Lead     | View Member Requests                              | view_request()             | Student  | 100%
-- Lead     | Send an invitation to student to be a team member |send_member_request()       | Lead     | 100%  
+- Lead     | Send an invitation to student to be a team member | send_member_request()      | Lead     | 100%  
 - Lead     | Send an invitation for advisor                    | send_advisor_request()     | Lead     | 100%
 - Lead     | Submit finished project                           | submit_project()           | Lead     | 100%
 - Lead     | View Project Details                              | view_project()             | Student  | 100%
@@ -42,7 +42,7 @@ Role       | Action                                            | Method         
 - Advisor  | View advisor invitation                           | view_request()             | Faculty  | 100%
 - Advisor  | View Project Details                              | view_project()             | Faculty  | 100%
 - Advisor  | Evaluate project as advisor                       | advisor_evaluate_project() | Faculty  | 100%
-- Advisor  | Approve project                                   |  approve_project()         | Advisor  | 100%
+- Advisor  | Approve project                                   | approve_project()          | Advisor  | 100%
 - Admin    | Update Table                                      | update_table()             | Admin    | 100%
 - Admin    | Modify Table                                      | modify_table()             | Admin    | 100%
 
