@@ -9,8 +9,7 @@ db = Database()
 
 
 def initializing():
-    table_names = ['persons', 'login', 'advisor_pending_request', 'member_pending_request', 'project_pending_request',
-                   'project']
+    table_names = ['persons', 'login', 'advisor_pending_request', 'member_pending_request', 'project']
     for table_name in table_names:
         csv_reader = ReadCsv(f'{table_name}.csv')
         csv_reader.read_csv()
@@ -47,8 +46,7 @@ def login():
 
 # define a function called exit
 def exit():
-    table_names = ['persons', 'login', 'advisor_pending_request', 'member_pending_request', 'project_pending_request',
-                   'project']
+    table_names = ['persons', 'login', 'advisor_pending_request', 'member_pending_request', 'project']
     for table_name in table_names:
         table = db.search(table_name)
         if table:
@@ -555,7 +553,8 @@ class Admin:
                 print("Invalid choice. Please try again.")
 
     def update_table(self):
-        table_name = input("Enter the table name that you want to update: ")
+        table_name = input("Enter the table name that you want to update (persons, login, advisor_pending_request, "
+                           "member_pending_request, project): ")
         table = db.search(table_name)
         if table:
             identifier_key = input("Enter the identifier key: ")
@@ -567,7 +566,8 @@ class Admin:
             table.update({identifier_key: identifier_value}, update_dict)
 
     def modify_table(self):
-        table_name = input("Enter the table name that you want to modify: ")
+        table_name = input("Enter the table name that you want to modify(persons, login, advisor_pending_request, "
+                           "member_pending_request, project):  ")
         table = db.search(table_name)
         if table:
             action = input("Do you want to add or remove a record? (add/remove): ")
